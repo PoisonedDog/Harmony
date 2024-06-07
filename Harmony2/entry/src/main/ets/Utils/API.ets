@@ -20,3 +20,9 @@ export function getHeritageAll(page?:number,size?:number){
 export function getHeritageByType(type:number){
   return getArticleAll({type:4, heritageType:type})
 }
+
+export function getArticleById(value:{
+  id: string
+}){
+  return httpObj.get(`/article/${value.id}`)
+}

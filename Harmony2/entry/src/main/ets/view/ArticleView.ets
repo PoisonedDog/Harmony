@@ -1,6 +1,7 @@
 import mainViewModel from '../viewmodel/MainViewModel';
 import ItemData from '../viewmodel/ItemData';
 import HeritageHeader from './HeritageDetailView'
+import ArticleViewModel from '../viewmodel/ArticleViewModel'
 import {Article} from '../viewmodel/ArticleData'
 @Component
 export default struct ArticleView {
@@ -11,6 +12,7 @@ export default struct ArticleView {
   private introText: string
   @Prop articleType: number
   @State article: Article = null
+  @State isLoading: boolean = true
   aboutToAppear(){
     if(this.articleType===0){
         this.introText = '美食介绍'
@@ -20,52 +22,15 @@ export default struct ArticleView {
     else if(this.articleType===8){
       this.introText = '酒店介绍'
     }
-    //this.article = mainViewModel.getArticleById(this.articleId)
-    this.article = {
-      id: "5b45bc90787749f7870306752982814c",
-      title: "火灯节",
-      content: "<p>啊单位我单位发热反而反而</p>",
-      contentUrl: 'https://qiniu.cdn.zhiliaotang.cn/0bc55cb7418e46adabaf6896e0060dd7.jpg',
-      type: 4,
-      status: 0,
-      readNum: 0,
-      collNum: 0,
-      shareNum: 0,
-      likeNum: 0,
-      popular: 0,
-      popType: null,
-      touType: null,
-      createUser: null,
-      createDate: "2023-12-16T10:39:39",
-      modifyUser: null,
-      modifyDate: "2023-12-16T11:47:01",
-      hotelId: null,
-      levelStar: null,
-      artSort: null,
-      subtitle: null,
-      openTime: "10:39:39-10:39:39",
-      position: "洋渡村12号",
-      posDes: "105.59,30.56",
-      reserTell: null,
-      hotelLabels: null,
-      foodType: null,
-      specialProduct: null,
-      specialPrice: null,
-      reserType: null,
-      heritageType: "1",
-      heritageTime: "每年四月",
-      notice: null,
-      tips: null,
-      tickets: null,
-      belongType: null,
-      recAddr: null,
-      specFrom: null,
-      madeBy: null,
-      national: '1',
-      activityUrl: null,
-      activitySkip: null
+    this.getArticle()
+
+  }
+  async getArticle(){
+    this.article = await ArticleViewModel.getArticleById(this.articleId)
+    if (this.article == null){
+      this.isLoading = true
     }
-    console.log(JSON.stringify(this.article.national))
+    this.isLoading = false
   }
   build() {
     Column(){
@@ -86,9 +51,12 @@ export default struct ArticleView {
 
           Column() {
             Row() {
-              if(this.articleType===4){
-                HeritageHeader({title:this.article.title, national:this.article.national, pos:this.article.position})
+              if(!this.isLoading){
+                if(this.articleType===4){
+                  HeritageHeader({title:this.article.title, national:this.article.national?'1':'2', pos:this.article.position?this.article.position:'1'})
+                }
               }
+
 
             }
             .width('95%')
@@ -115,7 +83,10 @@ export default struct ArticleView {
           .margin({top:10})
           Row(){
             //RichText('<p>这是文章<p>') 这个语句无法preview
-            Text('这是文章')
+            if(!this.isLoading){
+              Text(this.article.content.toString())
+            }
+
           }.width('100%')
 
           Row() {
