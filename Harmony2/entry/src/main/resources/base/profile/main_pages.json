@@ -1,8 +1,10 @@
 {
   "src": [
+    "pages/Index",
     "pages/MainPage",
-    "pages/ListPage",
-    "pages/HotSceneryPage",
-    "view/Home"
+    "pages/HeritagePage",
+    "pages/HeritageDetailPage",
+    "pages/FoodPage",
+    "pages/FoodDetailPage"
   ]
 }

@@ -1,8 +1,8 @@
-import HeritageList from "../view/HeritageView"
+import FoodList from "../view/FoodView"
 
 @Entry
 @Component
-struct HeritagePage {
+struct FoodPage {
   @State message: string = ''
   currentIndex:number =0
   private scroller: Scroller = new Scroller()
@@ -17,7 +17,7 @@ struct HeritagePage {
               .alignSelf(ItemAlign.Center)
           }.width('10%')
           Row(){
-            Text('文化遗产')
+            Text('地道美食')
               .fontSize(20)
               .fontColor(Color.White)
               .margin({left:'-10%'})
@@ -62,18 +62,19 @@ struct HeritagePage {
 
         // 组件4
 
-        HeritageView()
+        FoodView()
         //Cul_venue()
       }
       .width('100%')
       .flexGrow(1)
     }
+    .width('100%')
     .height('100%')
   }
 }
 
 @Component
-struct HeritageView {
+struct FoodView {
   private tabsController: TabsController = new TabsController();
   @State currentTabIndex: number = 0;
   @State fontColor: string = '#182431'
@@ -98,19 +99,19 @@ struct HeritageView {
     Scroll(){
       Tabs({ barPosition: BarPosition.Start, controller: this.controller }) {
         TabContent() {
-          HeritageList({type:0, currentTabIndex:this.currentTabIndex})
+          FoodList({type:0, currentTabIndex:this.currentTabIndex})
             .height('100%')
         }.tabBar(this.TabBuilder(0, '全部'))
 
         TabContent() {
-          HeritageList({type:1, currentTabIndex:this.currentTabIndex})
+          FoodList({type:1, currentTabIndex:this.currentTabIndex})
             .height('100%')
-        }.tabBar(this.TabBuilder(1, '国保文物'))
+        }.tabBar(this.TabBuilder(1, '遂宁必吃榜单'))
 
         TabContent() {
-          HeritageList({type:2, currentTabIndex:this.currentTabIndex,})
+          FoodList({type:2, currentTabIndex:this.currentTabIndex,})
             .height('100%')
-        }.tabBar(this.TabBuilder(2, '非遗项目'))
+        }.tabBar(this.TabBuilder(2, '天府旅游美食'))
 
       }
       .vertical(false)

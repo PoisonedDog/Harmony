@@ -1,12 +1,18 @@
 import mainViewModel from '../viewmodel/MainViewModel';
 import ItemData from '../viewmodel/ItemData';
 import HeritageHeader from './HeritageDetailView'
+import FoodHeader from './FoodDetailView'
+
+
 import ArticleViewModel from '../viewmodel/ArticleViewModel'
 import {Article} from '../viewmodel/ArticleData'
+import router from '@ohos.router'
+
 @Component
 export default struct ArticleView {
   @State message: string = 'Hello World'
-  @State isLike: Boolean = false
+  @State isLike: number = 0 // 这里如果使用boolean 出现不刷新的bug
+  @State likeNum: number = 0
   private scroller:Scroller = new Scroller()
   @Prop articleId: string
   private introText: string
@@ -24,6 +30,7 @@ export default struct ArticleView {
     }
     this.getArticle()
 
+
   }
   async getArticle(){
     this.article = await ArticleViewModel.getArticleById(this.articleId)
@@ -31,29 +38,64 @@ export default struct ArticleView {
       this.isLoading = true
     }
     this.isLoading = false
+    this.likeNum = this.article.likeNum
+  }
+  async likeArticle(){
+    if(this.isLike===0){
+      this.isLike = 1
+      this.likeNum +=1
+      await ArticleViewModel.addArticleLike(this.articleId,1)
+    }else{
+      this.isLike = 0
+      this.likeNum -=1
+      await ArticleViewModel.addArticleLike(this.articleId,-1)
+    }
   }
   build() {
     Column(){
       Scroll() {
         Column() {
-          Row(){
-            Image($r('app.media.left'))
-              .width(30)
-              .margin(10)
+          if(this.isLoading){
+            Row(){
+              Image($r('app.media.left'))
+                .width(30)
+                .margin(10)
+                .onClick(()=>{
+                  router.back()
+                })
+            }
+            .width('100%')
+            .backgroundColor(Color.White)
+            // .backgroundImage($r('app.media.test'))
+            // .backgroundImageSize(ImageSize.Cover)
+            .height(200)
+            .alignItems(VerticalAlign.Top)
+            .justifyContent(FlexAlign.Start)
+          }else{
+            Row(){
+              Image($r('app.media.left'))
+                .width(30)
+                .margin(10)
+                .onClick(()=>{
+                  router.back()
+                })
+            }.width('100%')
+            //.backgroundColor(Color.Gray)
+            .backgroundImage(this.article.contentUrl)
+            .backgroundImageSize(ImageSize.Cover)
+            .height(200)
+            .alignItems(VerticalAlign.Top)
+            .justifyContent(FlexAlign.Start)
           }
-          .width('100%')
-          //.backgroundColor(Color.Gray)
-          .backgroundImage($r('app.media.test'))
-          .backgroundImageSize(ImageSize.Cover)
-          .height(200)
-          .alignItems(VerticalAlign.Top)
-          .justifyContent(FlexAlign.Start)
+
 
           Column() {
             Row() {
               if(!this.isLoading){
                 if(this.articleType===4){
                   HeritageHeader({title:this.article.title, national:this.article.national?'1':'2', pos:this.article.position?this.article.position:'1'})
+                }else if(this.articleType===0){
+                  FoodHeader({title:this.article.title, recAddr:this.article.recAddr?this.article.recAddr:' '})
                 }
               }
 
@@ -84,7 +126,7 @@ export default struct ArticleView {
           Row(){
             //RichText('<p>这是文章<p>') 这个语句无法preview
             if(!this.isLoading){
-              Text(this.article.content.toString())
+              RichText(this.article.content.toString())
             }
 
           }.width('100%')
@@ -129,28 +171,40 @@ export default struct ArticleView {
         //.height('100%')
       }
       .height('95%')
+      // 定义一个Row组件，用于展示文章的点赞和分享功能
       Row(){
+        // 展示点赞图标和数量
         Row(){
+          // 根据isLike的状态，选择显示不同的点赞图标
           Image(this.isLike? $r('app.media.star_selected') :$r('app.media.star_normal'))
             .width('20')
+              // 点击图片时，触发likeArticle方法
             .onClick(()=>{
-              this.isLike = !this.isLike
-              console.log(this.isLike ?'1':'2')
+              this.likeArticle()
             })
-          Text('1')
-        }.height('100%')
+          // 显示当前文章的点赞数
+          Text(this.isLoading?'1':this.likeNum.toString())
+        }
+        // 设置行的高度和内容对齐方式
+        .height('100%')
         .justifyContent(FlexAlign.Start)
         .margin({left:20})
+        // 展示分享图标
         Row(){
           Image($r('app.media.share'))
             .width('20')
+              // 设置图片自适应
             .objectFit(ImageFit.Auto)
-        }.height('100%')
+        }
+        // 设置行的高度和右侧边距
+        .height('100%')
         .margin({right:20})
       }
+      // 设置行内元素的水平分布方式，设置行的高度和宽度
       .justifyContent(FlexAlign.SpaceBetween)
       .height('5%')
       .width('100%')
+
     }
 
   }

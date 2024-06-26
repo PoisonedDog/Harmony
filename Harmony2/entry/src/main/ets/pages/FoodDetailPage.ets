@@ -8,9 +8,8 @@ struct HeritageDetailPage {
 
   build() {
     Column(){
-      ArticleView({articleId:this.paramsFromUrl?.['heritage_id'],articleType:4})
+      ArticleView({articleId:this.paramsFromUrl?.['food_id'],articleType:0})
     }
 
   }
 }
-

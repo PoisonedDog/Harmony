@@ -1,8 +1,8 @@
-import  HeritageViewModel,{Heritage}  from '../viewmodel/HeritageViewModel'
+import  FoodViewModel,{Food}  from '../viewmodel/FoodViewModel'
 import router from '@ohos.router';
 @Component
-export default struct HeritageList {
-  @State heritageList: Array<Heritage> = []
+export default struct FoodList {
+  @State foodList: Array<Food> = []
   //@State visibleMask: Array<number> = []
   @State isLoading: boolean = true
   private scroller: Scroller = new Scroller();
@@ -18,8 +18,8 @@ export default struct HeritageList {
   async OnRefresh() {
     if(this.currentTabIndex === this.type)
     try {
-      const data = await HeritageViewModel.getHeritageByType(this.type);
-      this.heritageList = data;
+      const data = await FoodViewModel.getFoodByType(this.type);
+      this.foodList = data;
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -31,14 +31,14 @@ export default struct HeritageList {
   }
   OnSearch() {
     //console.log(this.searchText)
-    for(let i = 0;i<this.heritageList.length;i++){
-      let heritage = this.heritageList[i]
-      if(heritage.name.includes(this.searchText)){
-        heritage.status = heritage.status==1? 1 : 0
-        this.heritageList.splice(i,1,heritage)
+    for(let i = 0;i<this.foodList.length;i++){
+      let food = this.foodList[i]
+      if(food.name.includes(this.searchText)){
+        food.status = food.status==1? 1 : 0
+        this.foodList.splice(i,1,food)
       }else{
-        heritage.status = heritage.status==1? 1 : 2
-        this.heritageList.splice(i,1,heritage)
+        food.status = food.status==1? 1 : 2
+        this.foodList.splice(i,1,food)
       }
     }
   }
@@ -67,16 +67,16 @@ export default struct HeritageList {
       case TouchType.Up:
       // Only simulation effect, no data request
         this.timer = setTimeout(() => {
-          if (this.upRefreshStatus) {
-            this.scroller.scrollTo({ // 调用scrollTo滚动到具体位置
-              xOffset: 0, // 竖直方向滚动，该值不起作用
-              yOffset: 680, // 滚动到底部
-              animation: { // 滚动动画
-                duration: 1500,
-                curve: Curve.EaseOut
-              }
-            })
-          }
+          // if (this.upRefreshStatus) {
+          //   this.scroller.scrollTo({ // 调用scrollTo滚动到具体位置
+          //     xOffset: 0, // 竖直方向滚动，该值不起作用
+          //     yOffset: 680, // 滚动到底部
+          //     animation: { // 滚动动画
+          //       duration: 1500,
+          //       curve: Curve.EaseOut
+          //     }
+          //   })
+          // }
           this.refreshStatus = false;
           this.upRefreshStatus = false;
         }, 1500);
@@ -114,19 +114,18 @@ export default struct HeritageList {
             if(this.refreshStatus) {
               this.upDownRefreshBuilder('正在刷新', 'down')
             }
-            ForEach(this.heritageList, (heritage) => {
-              if(heritage.status==0){
+            ForEach(this.foodList, (food) => {
+              if(food.status==0){
                 ListItem(){
                   Column(){
-                    HeritageItem({
-                      heritage_id: heritage.id,
-                      name: heritage.name,
-                      national: heritage.national,
-                      pos: heritage.pos,
-                      imageURL: heritage.imageURL
+                    FoodItem({
+                      food_id: food.id,
+                      name: food.name,
+                      imageURL: food.imageURL,
+                      recAddr: food.recAddr
                     })
                       .margin({ bottom: 10 })
-                    Divider().strokeWidth(2).color('#F1F3F5').margin({ top: -5 })
+                    //Divider().strokeWidth(2).color('#F1F3F5').margin({ top: -5 })
                   }
                 }
               }
@@ -155,58 +154,59 @@ export default struct HeritageList {
 }
 
 @Component
-struct HeritageItem{
-  @Prop heritage_id:string;
-  @Prop national: string;
+struct FoodItem{
+  @Prop food_id:string;
   @Prop name: string;
-  @Prop pos: string;
   @Prop imageURL: string;
+  @Prop recAddr: string;
 
   toPage(){
-    console.log('heritage_id: ' + this.heritage_id)
+    console.log('food_id: ' + this.food_id)
     // 路由
     router.pushUrl({
-      url: 'pages/HeritageDetailPage',
+      url: 'pages/FoodDetailPage',
       params: {
-        heritage_id: this.heritage_id
+        food_id: this.food_id
       }
     })
   }
   build(){
-      Row({ space: 15 }) {
-        Column() {
-          Image(this.imageURL)
-            .width('30%')
-            .margin({ left: 10})
-            .borderRadius(5)
-            .onClick(()=>{
-              this.toPage()
-            })
-        }
-        Column({ space: 10 }) {
-          Text(this.name)
-            .fontSize(18)
-            .fontWeight(FontWeight.Bold)
-            .margin(2)
-            .onClick(()=>{
-              this.toPage()
-            })
-          Row() {
-            Text(`归属地: ${this.pos}`)
-              .fontSize(14)
-              .fontColor(Color.Grey)
+      Column({ space: 15 }) {
 
-            Image($r('app.media.location'))
-              .height('20')
+        Column() {
+          Row(){
+            Image(this.imageURL)
+              .height(150)
+              .width('100%')
           }
 
-          Text(`级别: ${this.national == '1' ? '国家级' : '省级'}`)
-            .fontSize(14)
-            .fontColor(Color.Grey)
-            .margin(2)
+          Row(){
+            Text(this.name)
+              .width("90%")
+              .height(35)
+              .fontSize(20)
+              .fontWeight(FontWeight.Bold)
+              .margin({top:5})
+              .backgroundColor("#FFFFFF")
+              .maxLines(1)
+              .textOverflow({overflow:TextOverflow.Ellipsis})
+          }
         }
-        .alignItems(HorizontalAlign.Start)
-        .justifyContent(FlexAlign.Start)
+        .clip(true)
+        .borderRadius(15)
+        .shadow({
+          radius: 20,
+          color: `rgba(0,0,0,0.3)`,
+          offsetY:0,
+          offsetX:0
+        })
+        .margin({top:10})
+        .height(185)
+        .width("90%")
+        .onClick(() => {
+          this.toPage()
+        })
+
       }
       .width('100%')
       //.margin({bottom: 10})

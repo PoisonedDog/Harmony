@@ -1,193 +1,131 @@
+/*
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import CommonConstants from '../common/constants/CommonConstants';
+import mainViewModel from '../viewmodel/MainViewModel';
+import ItemData from '../viewmodel/ItemData';
+import router from '@ohos.router';
+
+/**
+ * Home tab content
+ */
 @Component
+@Entry
 export default struct Home {
   private swiperController: SwiperController = new SwiperController();
-  @Builder
-  imageButton(src: Resource) {
-    Button({ type: ButtonType.Circle, stateEffect: true }) {
-      Image(src)
-    }
-    .height($r('app.float.other_login_image_size'))
-    .width($r('app.float.other_login_image_size'))
-    .backgroundColor(Color.White)
-  }
-  @Builder
-  homeCell(src: Resource, title: string) {
-    Column() {
-      Image(src)
-        .width($r('app.float.home_homeCell_size'))
-        .height($r('app.float.home_homeCell_size'))
-      Text(title)
-        .fontSize($r('app.float.little_text_size'))
-        .margin({ top: $r('app.float.home_homeCell_margin') })
-    }
-    .justifyContent(FlexAlign.Center)
-    .height($r('app.float.home_homeCell_height'))
-  }
-  build(){
-    Scroll(){
-      Column() {
-        // 开头图片
-        Image($r('app.media.fig2'))
-          .margin({top: 10})
-          //.height('30%')
-          .width('100%')
-          .margin({top:20})
-        // 宫格
+  scroller: Scroller = new Scroller()
+
+  build() {
+    Scroll() {
+      Column({ space: CommonConstants.COMMON_SPACE }) {
+        Swiper(this.swiperController) {
+          ForEach(mainViewModel.getSwiperImages(), (img: Resource) => {
+            Image(img).borderRadius($r('app.float.home_swiper_borderRadius'))
+          }, (img: Resource) => JSON.stringify(img.id))
+        }
+        .autoPlay(false)
+
         Grid() {
-          GridItem(){
-            this.homeCell($r('app.media.found'), '123')
-          }
-          GridItem(){
-            this.homeCell($r('app.media.found'), '123')
-          }
-          GridItem(){
-            this.homeCell($r('app.media.found'), '123')
-          }
+          ForEach(mainViewModel.getFirstGridData(), (item: ItemData) => {
+            GridItem() {
+              Column() {
+                Image(item.img)
+                  .width($r('app.float.home_homeCell_size'))
+                  .height($r('app.float.home_homeCell_size'))
+                  .onClick(()=>{
+                    if(item.others != null){
+                      router.pushUrl({ url: item.others })
+                    }
+                  })
+                Text(item.title)
+                  .fontSize($r('app.float.little_text_size'))
+                  .margin({ top: $r('app.float.home_homeCell_margin') })
+              }
+            }
+          }, (item: ItemData) => JSON.stringify(item))
         }
         .columnsTemplate('1fr 1fr 1fr 1fr')
-        .rowsTemplate('1fr 1fr')
+        .rowsTemplate('1fr 1fr 1fr')
         .columnsGap($r('app.float.home_grid_columnsGap'))
         .rowsGap($r('app.float.home_grid_rowGap'))
         .padding({ top: $r('app.float.home_grid_padding'), bottom: $r('app.float.home_grid_padding') })
-        .height($r('app.float.home_grid_height'))
+        .height('186vp')
         .backgroundColor(Color.White)
         .borderRadius($r('app.float.home_grid_borderRadius'))
 
-        // 热门活动
-        Row(){
-            Row(){
-              Image($r('app.media.hot'))
-                .height('20')
-              Text('热门活动')
-                .fontColor(Color.Black)
-                .fontSize('15')
-            }.justifyContent(FlexAlign.Start)
-
-            Row(){
-              Text('更多')
-                .fontColor(Color.Black)
-                .fontSize('15')
-              Image($r('app.media.right_grey'))
-                .height('20')
-            }.justifyContent(FlexAlign.End)
-        }
-        .height('30')
-        .width('100%')
-        .backgroundColor('Color.White')
-        .justifyContent(FlexAlign.SpaceBetween)
-
-        // 轮播图
-        Swiper(this.swiperController) {
-          Image($r('app.media.fig3'))
-          Image($r('app.media.fig3'))
-          Image($r('app.media.fig3'))
-        }.margin({ top: $r('app.float.home_swiper_margin') })
-        //.height('20%')
-        .width('100%')
-        .autoPlay(true)
-        .borderRadius($r('app.float.home_grid_borderRadius'))
-
-        // 游玩咨询
         Row(){
           Row(){
-            Image($r('app.media.play'))
-              .height('20')
-            Text('游玩咨询')
-              .fontColor(Color.Black)
-              .fontSize('15')
-              .margin({left: 1})
-          }.justifyContent(FlexAlign.Start)
+            Image($r('app.media.hot'))
+              .height('30xp')
+
+            Text('热门活动')
+              .fontSize('20vp')
+              .fontWeight(FontWeight.Bolder)
+              .margin({ top: $r('app.float.home_text_margin') })
+          }
+
+          Text('更多>')
+            .fontSize('16vp')
+            .margin({ top: $r('app.float.home_text_margin') })
         }
-        .height('30')
-        .width('100%')
-        .margin({top: 20})
-        .backgroundColor('Color.White')
         .justifyContent(FlexAlign.SpaceBetween)
+        .width('100%')
 
-        // 视频
-        Image($r('app.media.fig2'))
-          .margin({top: 10})
-          .width('100%')
-          //.height('20%')
-        // 宣传图
-        Image($r('app.media.fig2'))
-          .margin({top: 10})
-          .width('100%')
-          //.height('20%')
-
-        // 图文栏
-        Column({space:20}){
-          Row({space: 10}){
-            Column(){
-              Row(){
-                Text('这是图标')
-              }
-              .alignItems(VerticalAlign.Bottom)
-              .justifyContent(FlexAlign.End)
-              .backgroundImage($r('app.media.mountain'))
-              .backgroundImageSize(ImageSize.Cover)
-              .width('100%')
-              .height('30%')
-              Text('这是文字')
-            }
-            .justifyContent(FlexAlign.Center)
-            .width('50%')
-
-            Column(){
-              Row(){
-                Text('这是图标')
-              }
-              .alignItems(VerticalAlign.Bottom)
-              .justifyContent(FlexAlign.End)
-              .backgroundImage($r('app.media.mountain'))
-              .backgroundImageSize(ImageSize.Cover)
-              .width('100%')
-              .height('30%')
-              Text('这是文字')
-            }
-            .width('50%')
-          }
-          .justifyContent(FlexAlign.SpaceBetween)
-          .width('100%')
-
-          Row({space: 10}){
-            Column(){
-              Row(){
-                Text('这是图标')
-              }
-              .alignItems(VerticalAlign.Bottom)
-              .justifyContent(FlexAlign.End)
-              .backgroundImage($r('app.media.mountain'))
-              .backgroundImageSize(ImageSize.Cover)
-              .width('100%')
-              .height('30%')
-              Text('这是文字')
-            }
-            .width('50%')
-
-            Column(){
-              Row(){
-                Text('这是图标')
-              }
-              .alignItems(VerticalAlign.Bottom)
-              .justifyContent(FlexAlign.End)
-              .backgroundImage($r('app.media.mountain'))
-              .backgroundImageSize(ImageSize.Cover)
-              .width('100%')
-              .height('30%')
-              Text('这是文字')
-            }
-            .width('50%')
-          }
-          .justifyContent(FlexAlign.SpaceBetween)
-          .width('100%')
+        Swiper(this.swiperController) {
+          ForEach(mainViewModel.getSwiperImagesOfPopularActivity(), (img: Resource) => {
+            Image(img).borderRadius($r('app.float.home_swiper_borderRadius'))
+          }, (img: Resource) => JSON.stringify(img.id))
         }
-        .margin({top: 30})
+        .autoPlay(true)
+
+        Row(){
+          Image($r('app.media.travel'))
+            .height('30xp')
+
+          Text('游玩资讯')
+            .fontSize('20vp')
+            .fontWeight(FontWeight.Bolder)
+            .width('100%')
+            .margin({ top: $r('app.float.home_text_margin') })
+        }
+        Image($r('app.media.info'))
+          .borderRadius($r('app.float.home_swiper_borderRadius'))
+        Grid(this.scroller) {
+          ForEach(mainViewModel.getSecondGridData(), (item: ItemData) => {
+            GridItem() {
+              Column() {
+                Image(item.img)
+                  .width('100%')
+                  .height('90%')
+                Text(item.title)
+                  .fontSize($r('app.float.little_text_size'))
+                  .margin({ top: $r('app.float.home_homeCell_margin') })
+              }
+            }
+            .height('200vp')
+          }, (item: ItemData) => JSON.stringify(item))
+        }
+        .columnsTemplate('1fr 1fr')
+        .columnsGap($r('app.float.home_grid_columnsGap'))
+        .rowsGap('12vp')
+        .height(300)
+        .padding({ top: $r('app.float.home_grid_padding'), bottom: $r('app.float.home_grid_padding') })
+        .backgroundColor(Color.White)
+        .borderRadius($r('app.float.home_grid_borderRadius'))
       }
-      .backgroundColor(Color.White)
-      .height('auto')
-      .alignItems(HorizontalAlign.Start)
     }
-    .height('100%')
+    // .height(CommonConstants.FULL_PARENT)
   }
 }

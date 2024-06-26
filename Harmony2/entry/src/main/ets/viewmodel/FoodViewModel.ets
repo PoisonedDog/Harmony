@@ -1,6 +1,6 @@
-import {getHeritageAll,getHeritageByType} from "../Utils/API"
+import {getFoodAll,getFoodByType} from "../Utils/API"
 import {Article} from './ArticleData'
-export class Heritage{
+export class Food{
   id:number;
   name:string;
   national:string;
@@ -17,11 +17,11 @@ export class Heritage{
   }
 }
 
-export class HeritageViewModel {
-  async getHeritageByType(type:number): Promise<Array<Heritage>> { //type: 0 全部, 1 国保文物, 2 非遗项目
-    let heritages: Array<Heritage> = [];
+export class FoodViewModel {
+  async getFoodByType(type:number): Promise<Array<Food>> { //type: 0 全部, 1 国保文物, 2 非遗项目
+    let foods: Array<Food> = [];
     try {
-      const res = await getHeritageByType(type)
+      const res = await getFoodByType(type)
       let articles:Array<Article> = res.data.data.records;
 
       for (let i = 0; i < articles.length; i++) {
@@ -31,18 +31,18 @@ export class HeritageViewModel {
         const national = record.national ? '1' : '2';
         const pos = record.position;
         const imageURL = JSON.parse(record.contentUrl)[0].url;
-        const heritage = new Heritage(id, name, national, pos, imageURL, record.status);
-        console.log(JSON.stringify(record.heritageType));
+        const food = new Food(id, name, national, pos, imageURL, record.status);
+        console.log(JSON.stringify(record.foodType));
         console.log(JSON.stringify(record.title))
-        heritages.push(heritage);
+        foods.push(food);
       }
     } catch (error) {
-      console.error('Error fetching heritage data:', error);
+      console.error('Error fetching food data:', error);
     }
 
-    return heritages;
+    return foods;
   }
 
 }
 
-export default new HeritageViewModel();
+export default new FoodViewModel();
